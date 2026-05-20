@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multiplication Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header class="game-header" id="gameHeader" style="display: none;">
+            <div class="player-info">
+                <span class="player-avatar" id="headerAvatar"></span>
+                <span class="player-name" id="headerName"></span>
+            </div>
+            <div class="timer" id="timer">
+                <span class="timer-icon">&#9200;</span>
+                <span id="timeDisplay">00:00</span>
+            </div>
+        </header>
+
+        <main>
+            <section id="configScreen" class="screen active">
+                <h1>&#215; Multiplication Game &#215;</h1>
+
+                <div class="config-section">
+                    <label for="playerName">Tu nombre:</label>
+                    <input type="text" id="playerName" maxlength="15" placeholder="Escribe tu nombre" autocomplete="off">
+                </div>
+
+                <div class="config-section">
+                    <label>Elige tu avatar:</label>
+                    <div class="avatar-grid" id="avatarGrid"></div>
+                </div>
+
+                <div class="config-section">
+                    <label for="numQuestions">N&#250;mero de preguntas: <strong id="questionsValue">20</strong></label>
+                    <input type="range" id="numQuestions" min="1" max="100" value="20">
+                </div>
+
+                <div class="config-section">
+                    <label for="timeMinutes">Tiempo (minutos): <strong id="timeValue">5</strong></label>
+                    <input type="range" id="timeMinutes" min="1" max="60" value="5">
+                </div>
+
+                <div class="config-section">
+                    <label for="githubConfig">GitHub Leaderboard (opcional):</label>
+                    <input type="text" id="githubRepo" placeholder="usuario/repositorio" autocomplete="off">
+                    <input type="text" id="githubToken" placeholder="GitHub Token (PAT)" autocomplete="off" class="mt-2">
+                    <small style="color: #888;">Necesario solo si quieres guardar marcadores en GitHub</small>
+                </div>
+
+                <button id="startBtn" class="btn btn-primary">Jugar</button>
+                <button id="viewLeaderboardBtn" class="btn btn-secondary">Ver Marcadores</button>
+            </section>
+
+            <section id="gameScreen" class="screen">
+                <div id="questionsContainer"></div>
+                <button id="correctBtn" class="btn btn-primary">Corregir</button>
+            </section>
+
+            <section id="resultsScreen" class="screen">
+                <h2>Resultados</h2>
+                <div class="results-summary">
+                    <div class="result-card">
+                        <div class="result-icon correct">&#10004;</div>
+                        <div class="result-value" id="correctCount">0</div>
+                        <div class="result-label">Correctas</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon wrong">&#10008;</div>
+                        <div class="result-value" id="wrongCount">0</div>
+                        <div class="result-label">Incorrectas</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon score">&#9733;</div>
+                        <div class="result-value" id="scorePercent">0%</div>
+                        <div class="result-label">Puntuaci&#243;n</div>
+                    </div>
+                </div>
+
+                <div id="questionsReview"></div>
+
+                <div class="results-actions">
+                    <button id="saveScoreBtn" class="btn btn-primary">Guardar Marcador</button>
+                    <button id="playAgainBtn" class="btn btn-secondary">Jugar de Nuevo</button>
+                    <button id="goToLeaderboardBtn" class="btn btn-secondary">Ver Marcadores</button>
+                </div>
+            </section>
+
+            <section id="leaderboardScreen" class="screen">
+                <h2>&#127942; Marcadores</h2>
+                <div id="leaderboardList"></div>
+                <button id="backToConfigBtn" class="btn btn-secondary">Volver</button>
+            </section>
+        </main>
+
+        <div class="modal-overlay" id="modalOverlay" style="display: none;">
+            <div class="modal">
+                <p id="modalMessage"></p>
+                <button id="modalOkBtn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="leaderboard.js"></script>
+</body>
+</html>
