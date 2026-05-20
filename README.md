@@ -1,6 +1,6 @@
 # Juego de Multiplicar
 
-Un juego de tablas de multiplicar interactivo para practicar matem\u00e1ticas. Perfecto para estudiantes de primaria y cualquier persona que quiera mejorar su cálculo mental.
+Un juego de tablas de multiplicar interactivo para practicar matemáticas. Perfecto para estudiantes de primaria y cualquier persona que quiera mejorar su cálculo mental.
 
 ## Características
 
