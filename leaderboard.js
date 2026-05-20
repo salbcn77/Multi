@@ -14,8 +14,8 @@ function saveLocalLeaderboard(leaderboard) {
 
 function sortLeaderboard(leaderboard) {
     return leaderboard.slice().sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
         if (b.percent !== a.percent) return b.percent - a.percent;
-        if (b.correct !== a.correct) return b.correct - a.correct;
         return a.timeUsed - b.timeUsed;
     });
 }
@@ -31,6 +31,7 @@ function saveToLeaderboard(score) {
 function loadAndShowLeaderboard() {
     const leaderboard = sortLeaderboard(getLocalLeaderboard());
     renderLeaderboard(leaderboard);
+    $('#clearLeaderboardBtn').style.display = leaderboard.length > 0 ? 'block' : 'none';
 }
 
 function renderLeaderboard(leaderboard) {
@@ -61,6 +62,7 @@ function renderLeaderboard(leaderboard) {
         const mins = Math.floor(entry.timeUsed / 60);
         const secs = entry.timeUsed % 60;
         const timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
+        const score = entry.score || (entry.correct * 10);
 
         const div = document.createElement('div');
         div.className = 'leaderboard-item';
@@ -69,8 +71,9 @@ function renderLeaderboard(leaderboard) {
             <span class="leaderboard-avatar">${entry.avatar}</span>
             <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
             <span class="leaderboard-score">
-                <div class="points">${entry.percent}% (${entry.correct}/${entry.total})</div>
-                <div class="time">${timeStr}</div>
+                <div class="points">${score} pts</div>
+                <div class="time">${entry.percent}% (${entry.correct}/${entry.total})</div>
+                ${entry.difficulty ? `<div class="leaderboard-difficulty">${entry.difficulty}</div>` : ''}
             </span>
         `;
         container.appendChild(div);

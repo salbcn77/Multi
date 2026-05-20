@@ -26,6 +26,8 @@
             <section id="configScreen" class="screen active">
                 <h1 id="configTitle"></h1>
 
+                <div class="subtitle" id="configSubtitle">de Multiplicar</div>
+
                 <div class="config-section config-row">
                     <button id="themeToggleConfig" class="theme-toggle-btn">
                         <span id="themeIcon">&#9790;</span>
@@ -41,6 +43,21 @@
                 <div class="config-section">
                     <label>Elige tu avatar:</label>
                     <div class="avatar-grid" id="avatarGrid"></div>
+                </div>
+
+                <div class="config-section">
+                    <label for="difficulty">Dificultad:</label>
+                    <div class="difficulty-selector" id="difficultySelector">
+                        <button class="diff-btn" data-diff="easy">F&#225;cil <small>(×2 a ×5)</small></button>
+                        <button class="diff-btn selected" data-diff="normal">Normal <small>(×2 a ×7)</small></button>
+                        <button class="diff-btn" data-diff="hard">Dif&#237;cil <small>(×2 a ×9)</small></button>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <label>Pr&#225;ctica enfocada (opcional):</label>
+                    <div class="practice-grid" id="practiceGrid"></div>
+                    <button id="clearPracticeBtn" class="btn-clear-practice" style="display: none;">Limpiar selecci&#243;n</button>
                 </div>
 
                 <div class="config-section">
@@ -64,7 +81,10 @@
                     <span id="trackerWrong">0</span>
                 </div>
                 <div id="questionsContainer"></div>
-                <button id="correctBtn" class="btn btn-primary">Corregir</button>
+                <div class="game-actions">
+                    <button id="skipBtn" class="btn btn-skip">Saltar &#8594;</button>
+                    <button id="correctBtn" class="btn btn-primary">Corregir</button>
+                </div>
             </section>
 
             <section id="resultsScreen" class="screen">
@@ -85,8 +105,19 @@
                         <div class="result-value" id="scorePercent">0%</div>
                         <div class="result-label">Puntuaci&#243;n</div>
                     </div>
+                    <div class="result-card">
+                        <div class="result-icon time">&#9889;</div>
+                        <div class="result-value" id="timeBonus">0</div>
+                        <div class="result-label">Bonus tiempo</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon final">&#127942;</div>
+                        <div class="result-value" id="totalScore">0</div>
+                        <div class="result-label">Puntuaci&#243;n total</div>
+                    </div>
                 </div>
 
+                <div id="statsSection"></div>
                 <div id="questionsReview"></div>
 
                 <div class="results-actions">
@@ -99,9 +130,12 @@
             <section id="leaderboardScreen" class="screen">
                 <h2>&#127942; Marcadores</h2>
                 <div id="leaderboardList"></div>
+                <button id="clearLeaderboardBtn" class="btn btn-danger" style="display: none;">Borrar Marcadores</button>
                 <button id="backToConfigBtn" class="btn btn-secondary">Volver</button>
             </section>
         </main>
+
+        <div id="confettiContainer"></div>
 
         <div class="modal-overlay" id="modalOverlay" style="display: none;">
             <div class="modal">
