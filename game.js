@@ -227,7 +227,9 @@ function renderQuestions() {
         card.id = `question-${i}`;
 
         const eq = q.equation;
-        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-index="${i}" autocomplete="off"`;
+        const totalQuestions = gameState.questions.length;
+        const enterHint = i < totalQuestions - 1 ? 'enterkeyhint="next"' : 'enterkeyhint="done"';
+        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-index="${i}" autocomplete="off" ${enterHint}`;
         let html = '';
 
         if (eq.missing === 'left') {
@@ -261,6 +263,22 @@ function renderQuestions() {
         input.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
         });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const idx = parseInt(input.dataset.index);
+                if (idx < gameState.questions.length - 1) {
+                    const nextInput = document.querySelector(`#question-${idx + 1} input`);
+                    if (nextInput) {
+                        nextInput.focus();
+                        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        gameState.currentIndex = idx + 1;
+                    }
+                } else {
+                    correctAnswers();
+                }
+            }
+        });
     });
 
     gameState.currentIndex = 0;
@@ -269,7 +287,10 @@ function renderQuestions() {
 
 function focusCurrentInput() {
     const input = document.querySelector(`#question-${gameState.currentIndex} input`);
-    if (input) input.focus();
+    if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 function startGame() {
@@ -298,6 +319,15 @@ function startGame() {
     updateTimerDisplay();
     showScreen('gameScreen');
     hideScoreTracker();
+
+    setTimeout(() => {
+        const firstCard = document.getElementById('question-0');
+        if (firstCard) {
+            firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        const firstInput = document.querySelector('#question-0 input');
+        if (firstInput) firstInput.focus();
+    }, 100);
 
     gameState.timerInterval = setInterval(() => {
         gameState.timeRemaining--;
@@ -454,6 +484,10 @@ async function correctAnswers() {
             });
             correctCount++;
         }
+
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        updateTracker(correctCount, wrongCount);
     }
 
     const total = correctCount + wrongCount;
