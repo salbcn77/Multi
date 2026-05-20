@@ -1,9 +1,30 @@
 const AVATARS = [
-    '&#128054;', '&#128056;', '&#128061;', '&#128062;', '&#128065;',
-    '&#128067;', '&#128068;', '&#128073;', '&#128074;', '&#128076;',
-    '&#128078;', '&#128079;', '&#128081;', '&#128082;', '&#128083;',
-    '&#129428;', '&#129429;', '&#129430;', '&#129431;', '&#129432;'
+    String.fromCodePoint(128054),
+    String.fromCodePoint(128056),
+    String.fromCodePoint(128061),
+    String.fromCodePoint(128062),
+    String.fromCodePoint(128065),
+    String.fromCodePoint(128067),
+    String.fromCodePoint(128068),
+    String.fromCodePoint(128073),
+    String.fromCodePoint(128074),
+    String.fromCodePoint(128076),
+    String.fromCodePoint(128078),
+    String.fromCodePoint(128079),
+    String.fromCodePoint(128081),
+    String.fromCodePoint(128082),
+    String.fromCodePoint(128083),
+    String.fromCodePoint(129428),
+    String.fromCodePoint(129429),
+    String.fromCodePoint(129430),
+    String.fromCodePoint(129431),
+    String.fromCodePoint(129432)
 ];
+
+const CHECK = String.fromCodePoint(9989);
+const CROSS = String.fromCodePoint(10060);
+const TROPHY = String.fromCodePoint(127942);
+const PARTY = String.fromCodePoint(127881);
 
 let gameState = {
     playerName: '',
@@ -26,10 +47,10 @@ function init() {
 
 function setupAvatarGrid() {
     const grid = $('#avatarGrid');
-    AVATARS.forEach((avatar, i) => {
+    AVATARS.forEach((avatar) => {
         const div = document.createElement('div');
         div.className = 'avatar-option';
-        div.innerHTML = avatar;
+        div.textContent = avatar;
         div.dataset.avatar = avatar;
         div.addEventListener('click', () => selectAvatar(div));
         grid.appendChild(div);
@@ -76,23 +97,23 @@ function showScreen(screenId) {
 function generateQuestions(count) {
     const questions = [];
     for (let i = 0; i < count; i++) {
-        const a = Math.floor(Math.random() * 9) + 1;
-        const b = Math.floor(Math.random() * 9) + 1;
+        let a = Math.floor(Math.random() * 8) + 2;
+        let b = Math.floor(Math.random() * 8) + 2;
         const result = a * b;
         const missing = Math.floor(Math.random() * 3);
 
         let equation, answer;
         switch (missing) {
             case 0:
-                equation = { left: a, operator: '&#215;', middle: b, equals: result, missing: 'result' };
+                equation = { left: a, middle: b, equals: result, missing: 'result' };
                 answer = result;
                 break;
             case 1:
-                equation = { left: '?', operator: '&#215;', middle: b, equals: result, missing: 'left' };
+                equation = { left: '?', middle: b, equals: result, missing: 'left' };
                 answer = a;
                 break;
             case 2:
-                equation = { left: a, operator: '&#215;', middle: '?', equals: result, missing: 'middle' };
+                equation = { left: a, middle: '?', equals: result, missing: 'middle' };
                 answer = b;
                 break;
         }
@@ -109,24 +130,23 @@ function renderQuestions() {
     gameState.questions.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'question-card';
-        card.dataset.index = i;
+        card.id = `question-${i}`;
 
         const eq = q.equation;
-        const missingAttr = `data-index="${i}"`;
-        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" ${missingAttr} autocomplete="off"`;
+        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" data-index="${i}" autocomplete="off"`;
         let html = '';
 
         if (eq.missing === 'left') {
             html += `<input ${inputAttrs}>`;
-            html += ` <span class="operator">&times;</span> `;
+            html += ` <span class="operator">\u00d7</span> `;
             html += `<span>${eq.middle}</span>`;
         } else if (eq.missing === 'middle') {
             html += `<span>${eq.left}</span> `;
-            html += `<span class="operator">&times;</span> `;
+            html += `<span class="operator">\u00d7</span> `;
             html += `<input ${inputAttrs}>`;
         } else {
             html += `<span>${eq.left}</span> `;
-            html += `<span class="operator">&times;</span> `;
+            html += `<span class="operator">\u00d7</span> `;
             html += `<span>${eq.middle}</span>`;
         }
 
@@ -136,6 +156,8 @@ function renderQuestions() {
         } else {
             html += `<span>${eq.equals}</span>`;
         }
+
+        html += `<span class="question-status"></span>`;
 
         card.innerHTML = html;
         container.appendChild(card);
@@ -178,7 +200,8 @@ function startGame() {
         updateTimerDisplay();
         if (gameState.timeRemaining <= 0) {
             clearInterval(gameState.timerInterval);
-            endGame();
+            gameState.gameActive = false;
+            disableInputs();
         }
     }, 1000);
 
@@ -186,6 +209,13 @@ function startGame() {
     if (firstInput) firstInput.focus();
 
     document.addEventListener('keydown', handleKeyboardNav);
+}
+
+function disableInputs() {
+    const container = $('#questionsContainer');
+    container.querySelectorAll('input').forEach(inp => {
+        inp.disabled = true;
+    });
 }
 
 function handleKeyboardNav(e) {
@@ -224,97 +254,76 @@ function updateTimerDisplay() {
     }
 }
 
-function endGame() {
-    gameState.gameActive = false;
-    const inputs = $('#questionsContainer input');
-    inputs.forEach(inp => inp.disabled = true);
-    $('#correctBtn').disabled = false;
-}
-
 function correctAnswers() {
     if (gameState.gameActive) {
         clearInterval(gameState.timerInterval);
-        endGame();
+        gameState.gameActive = false;
+        disableInputs();
     }
 
     document.removeEventListener('keydown', handleKeyboardNav);
 
     const inputs = $('#questionsContainer input');
-    let correct = 0;
-    let wrong = 0;
-
-    gameState.questions.forEach((q, i) => {
-        q.userAnswer = null;
-    });
+    let correctCount = 0;
+    let wrongCount = 0;
 
     inputs.forEach((inp) => {
         const idx = parseInt(inp.dataset.index);
         const q = gameState.questions[idx];
-        const card = inp.closest('.question-card');
-        q.userAnswer = parseInt(inp.value);
+        const card = document.getElementById(`question-${idx}`);
+        const statusEl = card.querySelector('.question-status');
 
-        const existingStatus = card.querySelector('.question-status');
-        if (existingStatus) existingStatus.remove();
+        q.userAnswer = inp.value !== '' ? parseInt(inp.value) : null;
 
-        const existingReveal = card.querySelector('.answer-reveal');
-        if (existingReveal) existingReveal.remove();
-
-        card.classList.remove('correct', 'wrong');
-
-        if (isNaN(q.userAnswer) || q.userAnswer !== q.answer) {
-            card.classList.add('wrong');
-            wrong++;
-            const status = document.createElement('span');
-            status.className = 'question-status';
-            status.innerHTML = '&#10008;';
-            card.appendChild(status);
-            const reveal = document.createElement('span');
-            reveal.className = 'answer-reveal';
-            reveal.textContent = ` (${q.answer})`;
-            card.appendChild(reveal);
-        } else {
+        if (q.userAnswer !== null && q.userAnswer === q.answer) {
             card.classList.add('correct');
-            correct++;
-            const status = document.createElement('span');
-            status.className = 'question-status';
-            status.innerHTML = '&#10004;';
-            card.appendChild(status);
+            card.classList.remove('wrong');
+            statusEl.textContent = CHECK;
+            correctCount++;
+        } else {
+            card.classList.add('wrong');
+            card.classList.remove('correct');
+            statusEl.textContent = CROSS;
+            wrongCount++;
         }
     });
 
-    const total = correct + wrong;
-    const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const total = correctCount + wrongCount;
+    const percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
 
-    $('#correctCount').textContent = correct;
-    $('#wrongCount').textContent = wrong;
+    $('#correctCount').textContent = correctCount;
+    $('#wrongCount').textContent = wrongCount;
     $('#scorePercent').textContent = `${percent}%`;
 
     renderReview();
-    showScreen('resultsScreen');
+
+    setTimeout(() => {
+        showScreen('resultsScreen');
+    }, 800);
 }
 
 function renderReview() {
     const container = $('#questionsReview');
-    container.innerHTML = '<h3 style="margin-bottom: 12px; color: var(--text-muted);">Revisi&#243;n</h3>';
+    container.innerHTML = '<h3 style="margin-bottom: 12px; color: var(--text-muted);">Revisi\u00f3n</h3>';
 
     gameState.questions.forEach((q) => {
         const eq = q.equation;
         let equation = '';
 
         if (eq.missing === 'left') {
-            equation = `${q.userAnswer !== null ? q.userAnswer : '-'} ${eq.operator} ${eq.middle} = ${eq.equals}`;
+            equation = `${q.userAnswer !== null ? q.userAnswer : '-'} \u00d7 ${eq.middle} = ${eq.equals}`;
         } else if (eq.missing === 'middle') {
-            equation = `${eq.left} ${eq.operator} ${q.userAnswer !== null ? q.userAnswer : '-'} = ${eq.equals}`;
+            equation = `${eq.left} \u00d7 ${q.userAnswer !== null ? q.userAnswer : '-'} = ${eq.equals}`;
         } else {
-            equation = `${eq.left} ${eq.operator} ${eq.middle} = ${q.userAnswer !== null ? q.userAnswer : '-'}`;
+            equation = `${eq.left} \u00d7 ${eq.middle} = ${q.userAnswer !== null ? q.userAnswer : '-'}`;
         }
 
-        const isCorrect = q.userAnswer === q.answer;
+        const isCorrect = q.userAnswer !== null && q.userAnswer === q.answer;
         const div = document.createElement('div');
         div.className = `review-item ${isCorrect ? 'correct' : 'wrong'}`;
         div.innerHTML = `
             <span class="review-equation">${equation}</span>
-            <span class="review-status">${isCorrect ? '&#10004;' : '&#10008;'}</span>
+            <span class="review-status">${isCorrect ? CHECK : CROSS}</span>
         `;
         container.appendChild(div);
     });
@@ -322,7 +331,7 @@ function renderReview() {
 
 function saveScore() {
     const total = gameState.questions.length;
-    const correct = gameState.questions.filter(q => q.userAnswer === q.answer).length;
+    const correct = gameState.questions.filter(q => q.userAnswer !== null && q.userAnswer === q.answer).length;
     const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
     const timeUsed = (gameState.timeMinutes * 60) - gameState.timeRemaining;
 
@@ -337,15 +346,15 @@ function saveScore() {
     };
 
     saveToLeaderboard(score).then(() => {
-        showModal('&#127881; &#161;Marcador guardado correctamente!');
+        showModal(`${PARTY} \u00a1Marcador guardado correctamente!`);
     }).catch(err => {
         console.error(err);
-        showModal('Error al guardar el marcador. Revisa la configuraci&#243;n de GitHub.');
+        showModal('Error al guardar el marcador. Revisa la configuraci\u00f3n de GitHub.');
     });
 }
 
 function showModal(message) {
-    $('#modalMessage').innerHTML = message;
+    $('#modalMessage').textContent = message;
     $('#modalOverlay').style.display = 'flex';
 }
 
