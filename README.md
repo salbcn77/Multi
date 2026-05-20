@@ -75,7 +75,7 @@ Un juego de tablas de multiplicar interactivo para practicar matemáticas. Perfe
 | `game.js` | Lógica del juego (preguntas, temporizador, corrección, confetti) |
 | `leaderboard.js` | Sistema de marcadores con localStorage |
 
-## Tecnolog\u00edas
+## Tecnologías
 
 - HTML5
 - CSS3 (variables CSS, responsive, animaciones)
