@@ -24,7 +24,7 @@ Un juego de tablas de multiplicar interactivo para practicar matem\u00e1ticas. P
 - **Botón de saltar**: Si no sabes una respuesta, pasa sin bloquear el flujo
 - **Teclado numérico en móvil**: Solo se permiten números para evitar errores
 
-### Corrección y estad\u00edsticas
+### Corrección y estadísticas
 - **Corrección animada**: Se revisa pregunta a pregunta mostrando verde o rojo con un contador de aciertos/fallos en tiempo real
 - **Puntuación por tiempo**: Bonus basado en el tiempo restante al terminar (cuanto más rápido, mejor)
 - **Estadísticas detalladas**: Barras de progreso por tabla para identificar cuáles necesitas practicar más
