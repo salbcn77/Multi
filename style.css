@@ -21,6 +21,22 @@
     --radius: 12px;
 }
 
+[data-theme="light"] {
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary: #64748b;
+    --secondary-hover: #475569;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --bg: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-input: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
@@ -49,6 +65,26 @@ body {
     top: 0;
     z-index: 100;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.2);
 }
 
 .player-info {
@@ -118,6 +154,35 @@ body {
     padding: 20px;
     border-radius: var(--radius);
     margin-bottom: 16px;
+}
+
+.config-section.config-row {
+    display: flex;
+    justify-content: center;
+    padding: 12px 20px;
+}
+
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-input);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--primary);
+}
+
+.theme-toggle-btn span:first-child {
+    font-size: 1.3rem;
 }
 
 .config-section label {
@@ -256,6 +321,31 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Game Screen */
+#scoreTracker {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+#trackerCorrect {
+    color: var(--success);
+}
+
+#trackerWrong {
+    color: var(--danger);
+}
+
+.tracker-sep {
+    color: var(--text-muted);
+}
+
 #questionsContainer {
     display: grid;
     gap: 12px;
@@ -586,4 +676,16 @@ input[type="range"]::-moz-range-thumb {
         width: 55px;
         font-size: 1rem;
     }
+}
+
+[data-theme="light"] .game-header {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .avatar-option.selected {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.4);
 }

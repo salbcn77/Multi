@@ -1,83 +1,5 @@
 const LEADERBOARD_STORAGE_KEY = 'multiplication_game_leaderboard';
 
-function getGitHubConfig() {
-    const repo = $('#githubRepo').value.trim();
-    const token = $('#githubToken').value.trim();
-    if (repo && token) {
-        const [owner, repoName] = repo.split('/');
-        return { owner, repo: repoName, token };
-    }
-    return null;
-}
-
-async function fetchLeaderboardFromGitHub() {
-    const config = getGitHubConfig();
-    if (!config) return null;
-
-    try {
-        const resp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/leaderboard.json`, {
-            headers: {
-                'Authorization': `Bearer ${config.token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-
-        if (resp.status === 404) return [];
-
-        if (!resp.ok) throw new Error('Failed to fetch leaderboard');
-
-        const data = await resp.json();
-        const decoded = atob(data.content);
-        return JSON.parse(decoded);
-    } catch (err) {
-        console.error('GitHub fetch error:', err);
-        return null;
-    }
-}
-
-async function saveLeaderboardToGitHub(leaderboard) {
-    const config = getGitHubConfig();
-    if (!config) throw new Error('No GitHub config');
-
-    const content = btoa(JSON.stringify(leaderboard, null, 2));
-
-    let sha = '';
-    try {
-        const resp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/leaderboard.json`, {
-            headers: {
-                'Authorization': `Bearer ${config.token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-        if (resp.ok) {
-            const data = await resp.json();
-            sha = data.sha;
-        }
-    } catch (e) {
-    }
-
-    const body = {
-        message: 'Update leaderboard',
-        content: content
-    };
-    if (sha) body.sha = sha;
-
-    const resp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/leaderboard.json`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${config.token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-
-    if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.message || 'Failed to save leaderboard');
-    }
-}
-
 function getLocalLeaderboard() {
     try {
         return JSON.parse(localStorage.getItem(LEADERBOARD_STORAGE_KEY)) || [];
@@ -91,59 +13,23 @@ function saveLocalLeaderboard(leaderboard) {
 }
 
 function sortLeaderboard(leaderboard) {
-    return leaderboard.sort((a, b) => {
+    return leaderboard.slice().sort((a, b) => {
         if (b.percent !== a.percent) return b.percent - a.percent;
-        if (b.total !== a.total) return b.total - a.total;
+        if (b.correct !== a.correct) return b.correct - a.correct;
         return a.timeUsed - b.timeUsed;
     });
 }
 
-async function saveToLeaderboard(score) {
-    let leaderboard = [];
-
-    try {
-        const githubData = await fetchLeaderboardFromGitHub();
-        if (githubData !== null) {
-            leaderboard = githubData;
-        } else {
-            leaderboard = getLocalLeaderboard();
-        }
-    } catch {
-        leaderboard = getLocalLeaderboard();
-    }
-
+function saveToLeaderboard(score) {
+    let leaderboard = getLocalLeaderboard();
     leaderboard.push(score);
     leaderboard = sortLeaderboard(leaderboard);
-
     leaderboard = leaderboard.slice(0, 50);
-
     saveLocalLeaderboard(leaderboard);
-
-    const config = getGitHubConfig();
-    if (config) {
-        try {
-            await saveLeaderboardToGitHub(leaderboard);
-        } catch (err) {
-            console.error('Failed to save to GitHub:', err);
-        }
-    }
 }
 
-async function loadAndShowLeaderboard() {
-    let leaderboard = [];
-
-    try {
-        const githubData = await fetchLeaderboardFromGitHub();
-        if (githubData !== null) {
-            leaderboard = githubData;
-        } else {
-            leaderboard = getLocalLeaderboard();
-        }
-    } catch {
-        leaderboard = getLocalLeaderboard();
-    }
-
-    leaderboard = sortLeaderboard(leaderboard);
+function loadAndShowLeaderboard() {
+    const leaderboard = sortLeaderboard(getLocalLeaderboard());
     renderLeaderboard(leaderboard);
 }
 
@@ -152,7 +38,7 @@ function renderLeaderboard(leaderboard) {
     container.innerHTML = '';
 
     if (leaderboard.length === 0) {
-        container.innerHTML = '<div class="empty-leaderboard">No hay marcadores todav&#237;a. &#161;S&#233; el primero!</div>';
+        container.innerHTML = '<div class="empty-leaderboard">No hay marcadores todav\u00eda. \u00a1S\u00e9 el primero!</div>';
         return;
     }
 
@@ -163,13 +49,13 @@ function renderLeaderboard(leaderboard) {
 
         if (rank === 1) {
             rankClass = 'gold';
-            rankDisplay = '&#129351;';
+            rankDisplay = String.fromCodePoint(129351);
         } else if (rank === 2) {
             rankClass = 'silver';
-            rankDisplay = '&#129352;';
+            rankDisplay = String.fromCodePoint(129352);
         } else if (rank === 3) {
             rankClass = 'bronze';
-            rankDisplay = '&#129353;';
+            rankDisplay = String.fromCodePoint(129353);
         }
 
         const mins = Math.floor(entry.timeUsed / 60);

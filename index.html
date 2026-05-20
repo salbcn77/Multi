@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Multiplication Game</title>
+    <title>Multi</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,15 +13,25 @@
                 <span class="player-avatar" id="headerAvatar"></span>
                 <span class="player-name" id="headerName"></span>
             </div>
-            <div class="timer" id="timer">
-                <span class="timer-icon">&#9200;</span>
-                <span id="timeDisplay">00:00</span>
+            <div class="header-controls">
+                <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema"></button>
+                <div class="timer" id="timer">
+                    <span class="timer-icon">&#9200;</span>
+                    <span id="timeDisplay">00:00</span>
+                </div>
             </div>
         </header>
 
         <main>
             <section id="configScreen" class="screen active">
-                <h1>&#215; Multiplication Game &#215;</h1>
+                <h1 id="configTitle"></h1>
+
+                <div class="config-section config-row">
+                    <button id="themeToggleConfig" class="theme-toggle-btn">
+                        <span id="themeIcon">&#9790;</span>
+                        <span id="themeLabel">Tema Oscuro</span>
+                    </button>
+                </div>
 
                 <div class="config-section">
                     <label for="playerName">Tu nombre:</label>
@@ -43,18 +53,16 @@
                     <input type="range" id="timeMinutes" min="1" max="60" value="5">
                 </div>
 
-                <div class="config-section">
-                    <label for="githubConfig">GitHub Leaderboard (opcional):</label>
-                    <input type="text" id="githubRepo" placeholder="usuario/repositorio" autocomplete="off">
-                    <input type="text" id="githubToken" placeholder="GitHub Token (PAT)" autocomplete="off" class="mt-2">
-                    <small style="color: #888;">Necesario solo si quieres guardar marcadores en GitHub</small>
-                </div>
-
                 <button id="startBtn" class="btn btn-primary">Jugar</button>
                 <button id="viewLeaderboardBtn" class="btn btn-secondary">Ver Marcadores</button>
             </section>
 
             <section id="gameScreen" class="screen">
+                <div id="scoreTracker" style="display: none;">
+                    <span id="trackerCorrect">0</span>
+                    <span class="tracker-sep">/</span>
+                    <span id="trackerWrong">0</span>
+                </div>
                 <div id="questionsContainer"></div>
                 <button id="correctBtn" class="btn btn-primary">Corregir</button>
             </section>

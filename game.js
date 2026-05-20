@@ -1,30 +1,29 @@
 const AVATARS = [
     String.fromCodePoint(128054),
-    String.fromCodePoint(128056),
-    String.fromCodePoint(128061),
-    String.fromCodePoint(128062),
-    String.fromCodePoint(128065),
-    String.fromCodePoint(128067),
-    String.fromCodePoint(128068),
-    String.fromCodePoint(128073),
-    String.fromCodePoint(128074),
-    String.fromCodePoint(128076),
-    String.fromCodePoint(128078),
-    String.fromCodePoint(128079),
-    String.fromCodePoint(128081),
-    String.fromCodePoint(128082),
-    String.fromCodePoint(128083),
-    String.fromCodePoint(129428),
-    String.fromCodePoint(129429),
-    String.fromCodePoint(129430),
-    String.fromCodePoint(129431),
-    String.fromCodePoint(129432)
+    String.fromCodePoint(128052),
+    String.fromCodePoint(128048),
+    String.fromCodePoint(128163),
+    String.fromCodePoint(129312),
+    String.fromCodePoint(128125),
+    String.fromCodePoint(128049),
+    String.fromCodePoint(129393),
+    String.fromCodePoint(128110),
+    String.fromCodePoint(129385),
+    String.fromCodePoint(129424),
+    String.fromCodePoint(127877),
+    String.fromCodePoint(128060),
+    String.fromCodePoint(129409),
+    String.fromCodePoint(128035),
+    String.fromCodePoint(128036),
+    String.fromCodePoint(129313),
+    String.fromCodePoint(129433),
+    String.fromCodePoint(128051)
 ];
 
 const CHECK = String.fromCodePoint(9989);
 const CROSS = String.fromCodePoint(10060);
-const TROPHY = String.fromCodePoint(127942);
 const PARTY = String.fromCodePoint(127881);
+const TITLE_EMOJI = String.fromCodePoint(128302);
 
 let gameState = {
     playerName: '',
@@ -40,9 +39,16 @@ let gameState = {
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function init() {
     setupAvatarGrid();
     setupEventListeners();
+
+    const titleEmoji = String.fromCodePoint(128302);
+    $('#configTitle').textContent = `Multi ${titleEmoji}`;
 }
 
 function setupAvatarGrid() {
@@ -86,19 +92,30 @@ function setupEventListeners() {
     $('#saveScoreBtn').addEventListener('click', saveScore);
     $('#backToConfigBtn').addEventListener('click', () => showScreen('configScreen'));
     $('#modalOkBtn').addEventListener('click', () => $('#modalOverlay').style.display = 'none');
+
+    const themeBtn1 = $('#themeToggle');
+    const themeBtn2 = $('#themeToggleConfig');
+    if (themeBtn1) themeBtn1.addEventListener('click', toggleTheme);
+    if (themeBtn2) themeBtn2.addEventListener('click', toggleTheme);
 }
 
 function showScreen(screenId) {
     $$('.screen').forEach(s => s.classList.remove('active'));
     $(`#${screenId}`).classList.add('active');
     $('#gameHeader').style.display = screenId === 'gameScreen' ? 'flex' : 'none';
+
+    if (screenId === 'gameScreen') {
+        const themeBtn = $('#themeToggle');
+        const theme = getTheme();
+        themeBtn.textContent = theme === 'dark' ? String.fromCodePoint(9788) : String.fromCodePoint(9790);
+    }
 }
 
 function generateQuestions(count) {
     const questions = [];
     for (let i = 0; i < count; i++) {
-        let a = Math.floor(Math.random() * 8) + 2;
-        let b = Math.floor(Math.random() * 8) + 2;
+        const a = Math.floor(Math.random() * 8) + 2;
+        const b = Math.floor(Math.random() * 8) + 2;
         const result = a * b;
         const missing = Math.floor(Math.random() * 3);
 
@@ -133,7 +150,7 @@ function renderQuestions() {
         card.id = `question-${i}`;
 
         const eq = q.equation;
-        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" data-index="${i}" autocomplete="off"`;
+        const inputAttrs = `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-index="${i}" autocomplete="off"`;
         let html = '';
 
         if (eq.missing === 'left') {
@@ -194,6 +211,7 @@ function startGame() {
     renderQuestions();
     updateTimerDisplay();
     showScreen('gameScreen');
+    hideScoreTracker();
 
     gameState.timerInterval = setInterval(() => {
         gameState.timeRemaining--;
@@ -254,7 +272,22 @@ function updateTimerDisplay() {
     }
 }
 
-function correctAnswers() {
+function showScoreTracker() {
+    $('#scoreTracker').style.display = 'flex';
+    $('#trackerCorrect').textContent = '0';
+    $('#trackerWrong').textContent = '0';
+}
+
+function hideScoreTracker() {
+    $('#scoreTracker').style.display = 'none';
+}
+
+function updateTracker(correct, wrong) {
+    $('#trackerCorrect').textContent = correct;
+    $('#trackerWrong').textContent = wrong;
+}
+
+async function correctAnswers() {
     if (gameState.gameActive) {
         clearInterval(gameState.timerInterval);
         gameState.gameActive = false;
@@ -263,30 +296,40 @@ function correctAnswers() {
 
     document.removeEventListener('keydown', handleKeyboardNav);
 
-    const inputs = $('#questionsContainer input');
+    const correctBtn = $('#correctBtn');
+    correctBtn.disabled = true;
+    correctBtn.textContent = 'Corrigiendo...';
+
+    showScoreTracker();
+
     let correctCount = 0;
     let wrongCount = 0;
 
-    inputs.forEach((inp) => {
-        const idx = parseInt(inp.dataset.index);
-        const q = gameState.questions[idx];
-        const card = document.getElementById(`question-${idx}`);
+    for (let i = 0; i < gameState.questions.length; i++) {
+        const q = gameState.questions[i];
+        const card = document.getElementById(`question-${i}`);
         const statusEl = card.querySelector('.question-status');
+        const input = card.querySelector('input');
 
-        q.userAnswer = inp.value !== '' ? parseInt(inp.value) : null;
+        q.userAnswer = input && input.value !== '' ? parseInt(input.value) : null;
 
+        await sleep(150);
+
+        card.classList.remove('correct', 'wrong');
         if (q.userAnswer !== null && q.userAnswer === q.answer) {
             card.classList.add('correct');
-            card.classList.remove('wrong');
             statusEl.textContent = CHECK;
             correctCount++;
         } else {
             card.classList.add('wrong');
-            card.classList.remove('correct');
             statusEl.textContent = CROSS;
             wrongCount++;
         }
-    });
+
+        updateTracker(correctCount, wrongCount);
+    }
+
+    await sleep(500);
 
     const total = correctCount + wrongCount;
     const percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
@@ -297,9 +340,11 @@ function correctAnswers() {
 
     renderReview();
 
-    setTimeout(() => {
-        showScreen('resultsScreen');
-    }, 800);
+    correctBtn.textContent = 'Corregir';
+    correctBtn.disabled = false;
+
+    showScreen('resultsScreen');
+    hideScoreTracker();
 }
 
 function renderReview() {
@@ -345,12 +390,8 @@ function saveScore() {
         date: new Date().toISOString()
     };
 
-    saveToLeaderboard(score).then(() => {
-        showModal(`${PARTY} \u00a1Marcador guardado correctamente!`);
-    }).catch(err => {
-        console.error(err);
-        showModal('Error al guardar el marcador. Revisa la configuraci\u00f3n de GitHub.');
-    });
+    saveToLeaderboard(score);
+    showModal(`${PARTY} \u00a1Marcador guardado correctamente!`);
 }
 
 function showModal(message) {
@@ -358,4 +399,30 @@ function showModal(message) {
     $('#modalOverlay').style.display = 'flex';
 }
 
+function getTheme() {
+    return localStorage.getItem('multi-theme') || 'dark';
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('multi-theme', theme);
+    updateThemeButtons();
+}
+
+function toggleTheme() {
+    const current = getTheme();
+    setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function updateThemeButtons() {
+    const theme = getTheme();
+    const icon = theme === 'dark' ? String.fromCodePoint(9788) : String.fromCodePoint(9790);
+    const label = theme === 'dark' ? 'Tema Oscuro' : 'Tema Claro';
+    const iconEl = $('#themeIcon');
+    const labelEl = $('#themeLabel');
+    if (iconEl) iconEl.textContent = icon;
+    if (labelEl) labelEl.textContent = label;
+}
+
 init();
+setTheme(getTheme());
