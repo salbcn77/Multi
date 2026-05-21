@@ -34,7 +34,7 @@ const DIFFICULTIES = {
 let gameState = {
     playerName: '',
     playerAvatar: '',
-    difficulty: 'normal',
+    difficulty: 'hard',
     focusedTables: [],
     numQuestions: 20,
     timeMinutes: 5,
@@ -175,6 +175,7 @@ function generateQuestions(count) {
         : [];
 
     const questions = [];
+    const seen = new Set();
     let attempts = 0;
 
     while (questions.length < count && attempts < count * 10) {
@@ -210,6 +211,10 @@ function generateQuestions(count) {
                 answer = b;
                 break;
         }
+
+        const key = `${a}-${b}-${missing}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
 
         questions.push({ equation, answer, userAnswer: null, skipped: false });
     }
