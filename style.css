@@ -43,6 +43,7 @@ body {
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    scroll-padding-top: 70px;
 }
 
 #app {
@@ -61,11 +62,14 @@ body {
     background: var(--bg-card);
     border-radius: var(--radius);
     margin-bottom: 16px;
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
+
+
 
 .header-controls {
     display: flex;
