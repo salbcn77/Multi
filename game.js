@@ -268,22 +268,6 @@ function renderQuestions() {
         input.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
         });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const idx = parseInt(input.dataset.index);
-                if (idx < gameState.questions.length - 1) {
-                    const nextInput = document.querySelector(`#question-${idx + 1} input`);
-                    if (nextInput) {
-                        nextInput.focus();
-                        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        gameState.currentIndex = idx + 1;
-                    }
-                } else {
-                    correctAnswers();
-                }
-            }
-        });
     });
 
     gameState.currentIndex = 0;
@@ -364,6 +348,7 @@ function handleKeyboardNav(e) {
         e.preventDefault();
         if (idx < inputs.length - 1) {
             inputs[idx + 1].focus();
+            inputs[idx + 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
             gameState.currentIndex = idx + 1;
         } else {
             correctAnswers();
@@ -371,10 +356,12 @@ function handleKeyboardNav(e) {
     } else if (e.key === 'ArrowDown' && idx < inputs.length - 1) {
         e.preventDefault();
         inputs[idx + 1].focus();
+        inputs[idx + 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
         gameState.currentIndex = idx + 1;
     } else if (e.key === 'ArrowUp' && idx > 0) {
         e.preventDefault();
         inputs[idx - 1].focus();
+        inputs[idx - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
         gameState.currentIndex = idx - 1;
     }
 }

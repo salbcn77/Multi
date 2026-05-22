@@ -61,15 +61,15 @@ body {
     padding: 12px 16px;
     background: var(--bg-card);
     border-radius: var(--radius);
-    margin-bottom: 16px;
-    position: -webkit-sticky;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: calc(800px - 32px);
     z-index: 100;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
-
-
 
 .header-controls {
     display: flex;
@@ -451,6 +451,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Game Screen */
+#gameScreen {
+    padding-top: 62px;
+}
+
 .game-actions {
     display: flex;
     gap: 10px;
@@ -901,6 +905,12 @@ input[type="range"]::-moz-range-thumb {
 
     .game-header {
         padding: 10px 12px;
+        width: calc(100% - 20px);
+        max-width: calc(800px - 20px);
+    }
+
+    #gameScreen {
+        padding-top: 52px;
     }
 
     .player-avatar {
