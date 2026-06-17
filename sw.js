@@ -1,4 +1,4 @@
-const CACHE = 'multi-cache-v1';
+const CACHE = 'multi-cache-v2';
 
 const ASSETS = [
     '/',
@@ -6,12 +6,16 @@ const ASSETS = [
     '/style.css',
     '/game.js',
     '/leaderboard.js',
-    '/manifest.json'
+    '/manifest.json',
+    '/icon-192.png',
+    '/icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
     e.waitUntil(
-        caches.open(CACHE).then((cache) => cache.addAll(ASSETS))
+        caches.open(CACHE).then((cache) =>
+            Promise.allSettled(ASSETS.map((a) => cache.add(a).catch(() => {})))
+        )
     );
 });
 
