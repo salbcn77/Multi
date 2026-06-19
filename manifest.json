@@ -2,7 +2,7 @@
     "name": "Multi - Juego de Multiplicar",
     "short_name": "Multi",
     "description": "Juego interactivo para practicar tablas de multiplicar",
-    "start_url": ".",
+    "start_url": "/Multi/",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#0f172a",
